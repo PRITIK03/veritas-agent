@@ -1,0 +1,21 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.egg-info/
+/.venv/
+/venv/
+
+# Env
+.env
+
+# Streamlit
+.streamlit/
+
+# FAISS index
+data/faiss_index/
+
+# IDE
+.vscode/
+.idea/
