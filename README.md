@@ -183,3 +183,7 @@ curl http://localhost:8000/health
   actual Gemini billing may differ slightly.
 - **Auth & CORS:** CORS is wide open and there is no authentication — fine for a
   local demo, must be tightened before deployment.
+
+## Known issues
+
+- **Gemini free-tier rate limit:** the free tier allows 20 requests/day total. If you hit "9 RESOURCE_EXHAUSTED\, the server will still start (rate limits are not configuration errors) but live queries will fail until the daily quota resets. This is expected behaviour, not a bug.

@@ -33,6 +33,8 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(title="Veritas Agent", lifespan=lifespan)
 
+_query_count: int = 0
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],  # tighten this before real deployment
@@ -78,10 +80,13 @@ class AnalyticsResponse(BaseModel):
     avg_estimated_cost_usd: float
     total_estimated_cost_usd: float
     route_counts: RouteCounts
+    queries_this_session: int
 
 
 @app.post("/query", response_model=QueryResponse)
 def query_endpoint(req: QueryRequest, _: None = Depends(require_api_key)):
+global _query_count
+    _query_count += 1
     initial_state = {
         "query": req.query, "route": "", "context": [], "sources": [],
         "answer": "", "grounded": False, "failure_reason": None,
@@ -116,7 +121,9 @@ def health():
 
 @app.get("/analytics", response_model=AnalyticsResponse)
 def analytics_endpoint(_: None = Depends(require_api_key)):
-    return get_analytics_summary()
+    summary = get_analytics_summary()
+    summary["queries_this_session"] = _query_count
+    return summary
 
 
 @app.get("/favicon.ico")

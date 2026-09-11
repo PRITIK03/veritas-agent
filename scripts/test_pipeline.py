@@ -222,6 +222,8 @@ if __name__ == "__main__":
         run_retry_test()
         sys.exit(0)
 
+    queries_only = "--queries-only" in sys.argv
+
     verify_model_available()
 
     # Should hit RAG — it's covered by your Nimbus Cloud docs
@@ -237,5 +239,6 @@ if __name__ == "__main__":
     # and wide-token overlap means it may only surface with broader k=6 retrieval.
     run("How many months free do annual Nimbus plans include, and what API rate limit applies to the Basic tier?")
 
-    run_injection_test()
-    run_retry_test()
+    if not queries_only:
+        run_injection_test()
+        run_retry_test()

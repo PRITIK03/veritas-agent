@@ -48,7 +48,11 @@ def verify_model_available():
     """Make a real one-token test call to confirm the configured model is actually
     callable with this API key. list_models() is NOT sufficient — it returns models
     that exist in Google's catalog but doesn't reflect per-key/per-project permissions.
-    Call this once at startup only; don't call it per-node to avoid burning API quota."""
+    Call this once at startup only; don't call it per-node to avoid burning API quota.
+
+    A transient 429/rate-limit is NOT a configuration problem — it degrades to a warning.
+    Only 404/403/model-not-found errors raise the hard RuntimeError.
+    """
     from google import genai as google_genai
 
     configured = settings.GEMINI_MODEL
@@ -57,12 +61,16 @@ def verify_model_available():
         client.models.generate_content(model=configured, contents="hi")
         print(f"✅ Model '{configured}' confirmed callable.")
     except Exception as e:
-        print(f"❌ Model '{configured}' call failed.\n   API error: {e}")
-        raise RuntimeError(
-            f"Configured model '{configured}' is not usable with this API key.\n"
-            f"Check https://ai.google.dev/gemini-api/docs/models for a current alternative\n"
-            f"and update GEMINI_MODEL in app/config.py."
-        ) from e
+        if _is_rate_limit_error(e):
+            print(f"⚠️ Gemini quota exhausted for today — model is likely fine, this is a rate limit, "
+                  f"not a configuration problem. Server will still start; live queries may fail until quota resets.")
+        else:
+            print(f"❌ Model '{configured}' call failed.\n   API error: {e}")
+            raise RuntimeError(
+                f"Configured model '{configured}' is not usable with this API key.\n"
+                f"Check https://ai.google.dev/gemini-api/docs/models for a current alternative\n"
+                f"and update GEMINI_MODEL in app/config.py."
+            ) from e
 
 def _extract_text(response) -> str:
     """Safely extract string content from a LangChain LLM response.
