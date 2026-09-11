@@ -15,7 +15,7 @@ import json
 import os
 from pathlib import Path
 
-from app.utils.llm import get_gemini, _extract_text
+from app.utils.llm import invoke_with_retry
 
 CACHE_PATH = Path("data/llm_cache.json")
 CACHE_ENABLED = os.getenv("LLM_CACHE_ENABLED", "true").lower() != "false"
@@ -45,19 +45,17 @@ def cached_llm_invoke(prompt: str) -> str:
     Prints a clear status line on every call so cache hits are never silent.
     """
     if not CACHE_ENABLED:
-        response = get_gemini().invoke(prompt)
-        return _extract_text(response)
+        return invoke_with_retry(prompt)
 
     k = _key(prompt)
     cache = _load()
 
     if k in cache:
-        print(f"💾 Cache hit — skipping API call (key={k[:12]}…)")
+        print(f"💾 Cache hit — skipping API call (key={k[:12]}...)")
         return cache[k]
 
-    print(f"🌐 Cache miss — calling API (key={k[:12]}…)")
-    response = get_gemini().invoke(prompt)
-    text = _extract_text(response)
+    print(f"🌐 Cache miss — calling API (key={k[:12]}...)")
+    text = invoke_with_retry(prompt)
 
     cache[k] = text
     _save(cache)

@@ -18,6 +18,14 @@ Answer:
 """
 
 def grounding_node(state: GraphState) -> GraphState:
+    if not state.get("context"):
+        # No retrieved context: the specialist already returned an honest
+        # non-answer. Don't send empty context to the fact-checker.
+        print("⚠️ grounding node: empty context — treating honest non-answer as grounded.")
+        state["grounded"] = True
+        state["failure_reason"] = None
+        return state
+
     context_text = "\n\n".join(state.get("context", []))
     prompt = GROUNDING_PROMPT.format(context=context_text, answer=state["answer"])
     _t0 = time.perf_counter()

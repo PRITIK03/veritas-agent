@@ -1,3 +1,5 @@
+import time
+
 import requests
 from langchain_google_genai import ChatGoogleGenerativeAI
 from app.config import settings
@@ -12,6 +14,35 @@ def get_gemini():
             google_api_key=settings.GEMINI_API_KEY,
         )
     return _gemini
+
+_RATE_LIMIT_MARKERS = ("429", "resource_exhausted", "rate limit", "rate_limit", "quota")
+
+
+def _is_rate_limit_error(exc: Exception) -> bool:
+    text = f"{type(exc).__name__}: {exc}".lower()
+    return any(marker in text for marker in _RATE_LIMIT_MARKERS)
+
+
+def invoke_with_retry(prompt: str, max_retries: int = 2, base_delay: float = 2.0) -> str:
+    """Transport-level retry for transient Gemini rate-limit (429) failures.
+
+    This is deliberately separate from any answer-quality retry loop: it only
+    retries when the API call itself fails with a rate-limit error, up to
+    max_retries additional attempts with linear backoff. Non-rate-limit errors
+    propagate immediately. The response cache wraps this, so a successful retry
+    is cached normally and a hit never reaches here.
+    """
+    attempt = 0
+    while True:
+        try:
+            return _extract_text(get_gemini().invoke(prompt))
+        except Exception as e:
+            if not _is_rate_limit_error(e) or attempt >= max_retries:
+                raise
+            attempt += 1
+            delay = base_delay * attempt
+            print(f"⏳ Gemini rate-limited — retrying in {delay:.0f}s (attempt {attempt + 1}/{max_retries + 1})")
+            time.sleep(delay)
 
 def verify_model_available():
     """Make a real one-token test call to confirm the configured model is actually
