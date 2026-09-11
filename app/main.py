@@ -85,7 +85,7 @@ class AnalyticsResponse(BaseModel):
 
 @app.post("/query", response_model=QueryResponse)
 def query_endpoint(req: QueryRequest, _: None = Depends(require_api_key)):
-global _query_count
+    global _query_count
     _query_count += 1
     initial_state = {
         "query": req.query, "route": "", "context": [], "sources": [],
