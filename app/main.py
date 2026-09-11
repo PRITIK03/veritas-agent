@@ -1,5 +1,12 @@
 import time
 from contextlib import asynccontextmanager
+import logging
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s %(levelname)s %(name)s: %(message)s",
+    datefmt="%H:%M:%S",
+)
 
 from fastapi import FastAPI, Depends, Header, HTTPException, Response, Request
 from fastapi.middleware.cors import CORSMiddleware
@@ -7,7 +14,7 @@ from fastapi.responses import JSONResponse, FileResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 from typing import Optional, List, Dict
-import traceback, logging, os
+import traceback, os
 
 from app.config import settings
 from app.graph.pipeline import pipeline

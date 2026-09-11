@@ -17,7 +17,7 @@ from pathlib import Path
 
 from app.utils.llm import invoke_with_retry
 
-CACHE_PATH = Path("data/llm_cache.json")
+CACHE_PATH = Path(__file__).parent.parent / "data" / "llm_cache.json"
 CACHE_ENABLED = os.getenv("LLM_CACHE_ENABLED", "true").lower() != "false"
 
 
