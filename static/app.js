@@ -1,7 +1,7 @@
 const API_BASE = "";
 const API_KEY = "local-dev-key-change-me"; // For local demo only; use proper auth flow for deployment
 
-const tabs = document.querySelectorAll(".tab-btn");
+const tabs = document.querySelectorAll(".tab");
 const panels = document.querySelectorAll(".tab-panel");
 
 tabs.forEach(btn => {
@@ -11,7 +11,7 @@ tabs.forEach(btn => {
     btn.classList.add("active");
     btn.setAttribute("aria-selected", "true");
     const tab = btn.dataset.tab;
-    document.getElementById(`tab-${tab}`).classList.add("active");
+    document.querySelector(`.tab-panel[data-tab="${tab}"]`).classList.add("active");
     if (tab === "analytics") loadAnalytics();
   });
 });
@@ -62,9 +62,17 @@ function renderAnswer(d) {
   panel.classList.remove("hidden");
 
   const badge = document.getElementById("verdict-badge");
-  const grounded = d.grounded;
-  badge.className = "verdict-badge " + (grounded ? "grounded" : "unverified");
-  badge.textContent = d.failure_reason ? "UNVERIFIED" : (grounded ? "GROUNDED" : "UNVERIFIED");
+  badge.className = "badge";
+  if (d.failure_reason) {
+    badge.classList.add("error");
+    badge.textContent = "ERROR";
+  } else if (d.grounded) {
+    badge.classList.add("grounded");
+    badge.textContent = "GROUNDED";
+  } else {
+    badge.classList.add("unverified");
+    badge.textContent = "UNVERIFIED";
+  }
 
   document.getElementById("route-label").textContent = d.route || "—";
   document.getElementById("answer-text").textContent = d.answer || "";
@@ -83,17 +91,7 @@ function renderAnswer(d) {
   document.getElementById("stat-latency").textContent = (d.latency_ms ?? "—") + " ms";
   document.getElementById("stat-input-tokens").textContent = d.input_tokens ?? "—";
   document.getElementById("stat-output-tokens").textContent = d.output_tokens ?? "—";
-  document.getElementById("stat-cost").textContent = "$" + (d.estimated_cost_usd ?? "0.0000");
-
-  const errBanner = document.getElementById("error-banner");
-  if (d.failure_reason) {
-    errBanner.textContent = "Grounding failed: " + d.failure_reason;
-    errBanner.classList.remove("hidden");
-  } else {
-    errBanner.classList.add("hidden");
-  }
-
-  window.scrollTo({ top: panel.offsetTop - 20, behavior: "smooth" });
+  document.getElementById("stat-cost").textContent = "$" + (d.estimated_cost_usd ?? "0.00");
 }
 
 async function loadAnalytics() {
@@ -113,18 +111,18 @@ async function loadAnalytics() {
     body.classList.remove("hidden");
 
     document.getElementById("a-total").textContent = data.total_queries ?? 0;
-    const rate = data.grounding_success_rate_pct ?? 0;
-    document.getElementById("a-rate").textContent = rate.toFixed(0) + "%";
-    document.getElementById("a-rate-pct").textContent = rate.toFixed(0) + "%";
-    document.getElementById("a-progress-bar").style.width = rate + "%";
-    document.getElementById("a-latency").textContent = (data.avg_latency_ms ?? 0).toFixed(0) + " ms";
-    document.getElementById("a-cost").textContent = "$" + (data.avg_estimated_cost_usd ?? 0).toFixed(4);
     document.getElementById("a-session").textContent = data.queries_this_session ?? 0;
+    document.getElementById("a-latency").textContent = (data.avg_latency_ms ?? 0).toFixed(0) + "ms";
+    document.getElementById("a-cost").textContent = "$" + (data.avg_estimated_cost_usd ?? 0).toFixed(4);
     document.getElementById("a-total-cost").textContent = "$" + (data.total_estimated_cost_usd ?? 0).toFixed(4);
 
-    const total = data.route_counts?.rag + data.route_counts?.web_search || 1;
-    const ragPct = ((data.route_counts?.rag ?? 0) / total) * 100;
-    const webPct = ((data.route_counts?.web_search ?? 0) / total) * 100;
+    const rate = data.grounding_success_rate_pct ?? 0;
+    document.getElementById("a-rate-pct").textContent = rate.toFixed(0) + "%";
+    document.getElementById("a-progress-bar").style.width = rate + "%";
+
+    const total = (data.route_counts?.rag || 0) + (data.route_counts?.web_search || 0) || 1;
+    const ragPct = ((data.route_counts?.rag || 0) / total) * 100;
+    const webPct = ((data.route_counts?.web_search || 0) / total) * 100;
     document.getElementById("a-rag-bar").style.width = ragPct + "%";
     document.getElementById("a-rag-val").textContent = data.route_counts?.rag ?? 0;
     document.getElementById("a-web-bar").style.width = webPct + "%";

@@ -137,7 +137,7 @@ def query_endpoint(req: QueryRequest, _: None = Depends(require_api_key)):
     return QueryResponse(
         answer=result["answer"], route=result["route"], grounded=result["grounded"],
         failure_reason=result["failure_reason"], sources=result["sources"],
-        latency_ms=t["latency_ms"], input_tokens=result["input_tokens"],
+        latency_ms=latency_ms, input_tokens=result["input_tokens"],
         output_tokens=result["output_tokens"], estimated_cost_usd=cost,
     )
 

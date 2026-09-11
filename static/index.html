@@ -3,109 +3,117 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Veritas Agent</title>
+  <title>Veritas</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
-  <header class="site-header">
-    <div class="header-inner">
-      <h1 class="site-title">Veritas</h1>
-      <p class="site-subtitle">Grounding-first QA</p>
-    </div>
-    <nav class="tab-nav" role="tablist">
-      <button class="tab-btn active" data-tab="ask" role="tab" aria-selected="true">Ask</button>
-      <button class="tab-btn" data-tab="analytics" role="tab" aria-selected="false">Analytics</button>
-    </nav>
-  </header>
-
-  <main>
-    <section id="tab-ask" class="tab-panel active" role="tabpanel">
-      <div class="ask-wrap">
-        <textarea id="query-input" class="query-area" placeholder="Ask a question about the documents..." rows="3" aria-label="Query"></textarea>
-        <button id="submit-btn" class="submit-btn">Submit</button>
-        <div id="loading" class="loading hidden" aria-live="polite">Processing&hellip;</div>
+  <div class="app">
+    <header class="topbar">
+      <div class="topbar-left">
+        <span class="logo">Veritas</span>
+        <span class="logo-dot">.</span>
+        <span class="logo-tag">QA</span>
       </div>
+      <nav class="tabs" role="tablist">
+        <button class="tab active" data-tab="ask" role="tab" aria-selected="true">Ask</button>
+        <button class="tab" data-tab="analytics" role="tab" aria-selected="false">Analytics</button>
+      </nav>
+    </header>
 
-      <div id="answer-panel" class="answer-panel hidden">
-        <div class="answer-meta">
-          <span id="verdict-badge" class="verdict-badge"></span>
-          <span id="route-label" class="route-label"></span>
-        </div>
-        <pre id="answer-text" class="answer-text"></pre>
-        <div id="sources-section" class="sources-section hidden">
-          <h3 class="section-subtitle">Sources</h3>
-          <ul id="sources-list" class="sources-list"></ul>
-        </div>
-        <div id="run-stats" class="run-stats hidden">
-          <dl class="stats-grid">
-            <dt>Latency</dt><dd id="stat-latency"></dd>
-            <dt>Input tokens</dt><dd id="stat-input-tokens"></dd>
-            <dt>Output tokens</dt><dd id="stat-output-tokens"></dd>
-            <dt>Est. cost</dt><dd id="stat-cost"></dd>
-          </dl>
-        </div>
-        <div id="error-banner" class="error-banner hidden" role="alert"></div>
-      </div>
-    </section>
+    <main class="main">
+      <!-- ASK TAB -->
+      <section class="tab-panel active" data-tab="ask" role="tabpanel">
+        <div class="ask-container">
+          <div class="query-row">
+            <textarea id="query-input" class="query-area" placeholder="Ask a question about the documents..." rows="2" aria-label="Query"></textarea>
+            <button id="submit-btn" class="btn-submit">Submit</button>
+          </div>
+          <div id="loading" class="loading hidden" aria-live="polite">Searching...</div>
 
-    <section id="tab-analytics" class="tab-panel" role="tabpanel">
-      <h2 class="panel-title">Analytics</h2>
-      <div id="analytics-content" class="analytics-content">
-        <div id="analytics-loading" class="loading">Loading analytics&hellip;</div>
-        <div id="analytics-empty" class="empty-state hidden">No query data yet. Ask a question first.</div>
-        <div id="analytics-body" class="analytics-body hidden">
-          <div class="stat-card">
-            <span class="stat-value" id="a-total">0</span>
-            <span class="stat-label">Total queries</span>
-          </div>
-          <div class="stat-card">
-            <span class="stat-value" id="a-rate">0%</span>
-            <span class="stat-label">Grounding success rate</span>
-          </div>
-          <div class="stat-card">
-            <span class="stat-value" id="a-latency">0ms</span>
-            <span class="stat-label">Avg latency</span>
-          </div>
-          <div class="stat-card">
-            <span class="stat-value" id="a-cost">$0.0000</span>
-            <span class="stat-label">Avg cost</span>
-          </div>
-          <div class="stat-card">
-            <span class="stat-value" id="a-session">0</span>
-            <span class="stat-label">Session queries</span>
-          </div>
-          <div class="stat-card">
-            <span class="stat-value" id="a-total-cost">$0.0000</span>
-            <span class="stat-label">Total cost</span>
-          </div>
-          <div class="progress-wrap">
-            <div class="progress-header">
-              <span class="progress-label">Grounding rate</span>
-              <span class="progress-pct" id="a-rate-pct">0%</span>
+          <div id="answer-panel" class="answer-panel hidden">
+            <div class="answer-header">
+              <span id="verdict-badge" class="badge"></span>
+              <span id="route-label" class="route-tag"></span>
             </div>
-            <div class="progress-track">
-              <div class="progress-fill" id="a-progress-bar" style="width:0%"></div>
+            <pre id="answer-text" class="answer-text"></pre>
+            <div id="sources-section" class="sources hidden">
+              <div class="sources-heading">Sources</div>
+              <ul id="sources-list" class="sources-list"></ul>
             </div>
+            <div id="run-stats" class="stats hidden">
+              <div class="stat-item"><span class="stat-key">Latency</span><span id="stat-latency" class="stat-val"></span></div>
+              <div class="stat-item"><span class="stat-key">Input</span><span id="stat-input-tokens" class="stat-val"></span></div>
+              <div class="stat-item"><span class="stat-key">Output</span><span id="stat-output-tokens" class="stat-val"></span></div>
+              <div class="stat-item"><span class="stat-key">Cost</span><span id="stat-cost" class="stat-val"></span></div>
+            </div>
+            <div id="error-banner" class="error hidden" role="alert"></div>
           </div>
-          <div class="route-split">
-            <h3 class="section-subtitle">Route split</h3>
-            <div class="route-bars">
-              <div class="route-bar-wrap">
-                <span class="route-bar-label">RAG</span>
-                <div class="route-track"><div class="route-fill rag" id="a-rag-bar" style="width:0%"></div></div>
-                <span class="route-bar-val" id="a-rag-val">0</span>
+        </div>
+      </section>
+
+      <!-- ANALYTICS TAB -->
+      <section class="tab-panel" data-tab="analytics" role="tabpanel">
+        <div class="analytics-container">
+          <div class="analytics-title">Query Analytics</div>
+          <div id="analytics-loading" class="loading">Loading...</div>
+          <div id="analytics-empty" class="empty hidden">No queries yet. Ask something first.</div>
+          <div id="analytics-body" class="hidden">
+            <div class="stats-grid">
+              <div class="metric-card">
+                <div class="metric-num" id="a-total">0</div>
+                <div class="metric-label">Queries</div>
               </div>
-              <div class="route-bar-wrap">
-                <span class="route-bar-label">Web search</span>
-                <div class="route-track"><div class="route-fill web" id="a-web-bar" style="width:0%"></div></div>
-                <span class="route-bar-val" id="a-web-val">0</span>
+              <div class="metric-card">
+                <div class="metric-num" id="a-session">0</div>
+                <div class="metric-label">This session</div>
+              </div>
+              <div class="metric-card">
+                <div class="metric-num" id="a-latency">0ms</div>
+                <div class="metric-label">Avg latency</div>
+              </div>
+              <div class="metric-card">
+                <div class="metric-num" id="a-cost">$0.00</div>
+                <div class="metric-label">Avg cost</div>
+              </div>
+              <div class="metric-card">
+                <div class="metric-num" id="a-total-cost">$0.00</div>
+                <div class="metric-label">Total cost</div>
               </div>
             </div>
+            <div class="section-block">
+              <div class="section-head">
+                <span class="section-title">Grounding rate</span>
+                <span class="section-pct" id="a-rate-pct">0%</span>
+              </div>
+              <div class="bar-track">
+                <div class="bar-fill" id="a-progress-bar" style="width:0%"></div>
+              </div>
+            </div>
+            <div class="section-block">
+              <div class="section-head">
+                <span class="section-title">Route split</span>
+              </div>
+              <div class="split-bars">
+                <div class="split-row">
+                  <span class="split-name">RAG</span>
+                  <div class="split-track"><div class="split-fill rag" id="a-rag-bar" style="width:0%"></div></div>
+                  <span class="split-num" id="a-rag-val">0</span>
+                </div>
+                <div class="split-row">
+                  <span class="split-name">Web</span>
+                  <div class="split-track"><div class="split-fill web" id="a-web-bar" style="width:0%"></div></div>
+                  <span class="split-num" id="a-web-val">0</span>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
-      </div>
-    </section>
-  </main>
+      </section>
+    </main>
+  </div>
 
   <script src="/static/app.js"></script>
 </body>
