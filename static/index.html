@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Veritas Agent</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="header-inner">
+      <h1 class="site-title">Veritas</h1>
+      <p class="site-subtitle">Grounding-first QA</p>
+    </div>
+    <nav class="tab-nav" role="tablist">
+      <button class="tab-btn active" data-tab="ask" role="tab" aria-selected="true">Ask</button>
+      <button class="tab-btn" data-tab="analytics" role="tab" aria-selected="false">Analytics</button>
+    </nav>
+  </header>
+
+  <main>
+    <section id="tab-ask" class="tab-panel active" role="tabpanel">
+      <div class="ask-wrap">
+        <textarea id="query-input" class="query-area" placeholder="Ask a question about the documents..." rows="3" aria-label="Query"></textarea>
+        <button id="submit-btn" class="submit-btn">Submit</button>
+        <div id="loading" class="loading hidden" aria-live="polite">Processing&hellip;</div>
+      </div>
+
+      <div id="answer-panel" class="answer-panel hidden">
+        <div class="answer-meta">
+          <span id="verdict-badge" class="verdict-badge"></span>
+          <span id="route-label" class="route-label"></span>
+        </div>
+        <pre id="answer-text" class="answer-text"></pre>
+        <div id="sources-section" class="sources-section hidden">
+          <h3 class="section-subtitle">Sources</h3>
+          <ul id="sources-list" class="sources-list"></ul>
+        </div>
+        <div id="run-stats" class="run-stats hidden">
+          <dl class="stats-grid">
+            <dt>Latency</dt><dd id="stat-latency"></dd>
+            <dt>Input tokens</dt><dd id="stat-input-tokens"></dd>
+            <dt>Output tokens</dt><dd id="stat-output-tokens"></dd>
+            <dt>Est. cost</dt><dd id="stat-cost"></dd>
+          </dl>
+        </div>
+        <div id="error-banner" class="error-banner hidden" role="alert"></div>
+      </div>
+    </section>
+
+    <section id="tab-analytics" class="tab-panel" role="tabpanel">
+      <h2 class="panel-title">Analytics</h2>
+      <div id="analytics-content" class="analytics-content">
+        <div id="analytics-loading" class="loading">Loading analytics&hellip;</div>
+        <div id="analytics-empty" class="empty-state hidden">No query data yet. Ask a question first.</div>
+        <div id="analytics-body" class="analytics-body hidden">
+          <div class="stat-card">
+            <span class="stat-value" id="a-total">0</span>
+            <span class="stat-label">Total queries</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-value" id="a-rate">0%</span>
+            <span class="stat-label">Grounding success rate</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-value" id="a-latency">0ms</span>
+            <span class="stat-label">Avg latency</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-value" id="a-cost">$0.0000</span>
+            <span class="stat-label">Avg cost</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-value" id="a-session">0</span>
+            <span class="stat-label">Session queries</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-value" id="a-total-cost">$0.0000</span>
+            <span class="stat-label">Total cost</span>
+          </div>
+          <div class="progress-wrap">
+            <div class="progress-header">
+              <span class="progress-label">Grounding rate</span>
+              <span class="progress-pct" id="a-rate-pct">0%</span>
+            </div>
+            <div class="progress-track">
+              <div class="progress-fill" id="a-progress-bar" style="width:0%"></div>
+            </div>
+          </div>
+          <div class="route-split">
+            <h3 class="section-subtitle">Route split</h3>
+            <div class="route-bars">
+              <div class="route-bar-wrap">
+                <span class="route-bar-label">RAG</span>
+                <div class="route-track"><div class="route-fill rag" id="a-rag-bar" style="width:0%"></div></div>
+                <span class="route-bar-val" id="a-rag-val">0</span>
+              </div>
+              <div class="route-bar-wrap">
+                <span class="route-bar-label">Web search</span>
+                <div class="route-track"><div class="route-fill web" id="a-web-bar" style="width:0%"></div></div>
+                <span class="route-bar-val" id="a-web-val">0</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>

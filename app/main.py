@@ -1,16 +1,23 @@
+import time
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI, Depends, Header, HTTPException, Response
+from fastapi import FastAPI, Depends, Header, HTTPException, Response, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse, FileResponse
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 from typing import Optional, List, Dict
+import traceback, logging, os
 
 from app.config import settings
 from app.graph.pipeline import pipeline
-from app.utils.timer import timer
 from app.utils.cost import estimate_cost
 from app.utils.llm import verify_model_available
 from app.db import log_query, get_analytics_summary
+
+logger = logging.getLogger(__name__)
+
+STATIC_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "static")
 
 
 @asynccontextmanager
@@ -33,11 +40,14 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(title="Veritas Agent", lifespan=lifespan)
 
+if os.path.isdir(STATIC_DIR):
+    app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
+
 _query_count: int = 0
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # tighten this before real deployment
+    allow_origins=["*"],
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -83,6 +93,12 @@ class AnalyticsResponse(BaseModel):
     queries_this_session: int
 
 
+@app.exception_handler(Exception)
+async def global_exception_handler(request: Request, exc: Exception):
+    logger.error(f"Unhandled exception at {request.url.path}: {traceback.format_exc()}")
+    return JSONResponse(status_code=500, content={"detail": str(exc)})
+
+
 @app.post("/query", response_model=QueryResponse)
 def query_endpoint(req: QueryRequest, _: None = Depends(require_api_key)):
     global _query_count
@@ -93,15 +109,27 @@ def query_endpoint(req: QueryRequest, _: None = Depends(require_api_key)):
         "input_tokens": 0, "output_tokens": 0, "retry_count": 0,
     }
 
-    with timer() as t:
+    start = time.perf_counter()
+    try:
         result = pipeline.invoke(initial_state)
+        latency_ms = int((time.perf_counter() - start) * 1000)
+    except Exception as e:
+        latency_ms = int((time.perf_counter() - start) * 1000)
+        error_msg = f"Pipeline failed: {type(e).__name__}: {e}"
+        logger.error(error_msg)
+        return QueryResponse(
+            answer=error_msg, route="error", grounded=False,
+            failure_reason="LLM quota exhausted — the pipeline could not complete. Retry later.",
+            sources=[], latency_ms=latency_ms,
+            input_tokens=0, output_tokens=0, estimated_cost_usd=0.0,
+        )
 
     cost = estimate_cost(result["input_tokens"], result["output_tokens"])
 
     log_query(
         query=req.query, route=result["route"], answer=result["answer"],
         sources=result["sources"], grounded=result["grounded"],
-        failure_reason=result["failure_reason"], latency_ms=t["latency_ms"],
+        failure_reason=result["failure_reason"], latency_ms=latency_ms,
         input_tokens=result["input_tokens"], output_tokens=result["output_tokens"],
         estimated_cost_usd=cost,
     )
@@ -133,4 +161,12 @@ def favicon():
 
 @app.get("/")
 def root():
+    index_path = os.path.join(STATIC_DIR, "index.html")
+    if os.path.isfile(index_path):
+        return FileResponse(index_path)
+    return {"service": "Veritas Agent", "status": "running", "docs": "/docs"}
+
+
+@app.get("/api/status")
+def api_status():
     return {"service": "Veritas Agent", "status": "running", "docs": "/docs"}

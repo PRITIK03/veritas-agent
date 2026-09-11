@@ -41,7 +41,8 @@ Postgres for latency, token, cost, and grounding analytics.
 
 Flow: `router → specialist → grounding → (retry once on failure) → Postgres`,
 exposed through FastAPI (`POST /query`, `GET /analytics`, `GET /health`,
-`GET /`, `GET /favicon.ico`) plus a Streamlit console with Ask and Analytics tabs.
+`GET /`, `GET /favicon.ico`, `GET /api/status`) served with a self-contained
+HTML/CSS/JS frontend at the root URL — no separate UI server needed.
 
 ## Features
 
@@ -60,7 +61,9 @@ exposed through FastAPI (`POST /query`, `GET /analytics`, `GET /health`,
   crashing; empty retrieval yields an honest "I don't have enough information
   to answer this." (marked grounded, no LLM call, fact-checker skipped); a failed
   Postgres write logs a warning but still returns the answer; Gemini 429s are
-  retried twice with linear backoff at the transport layer, below the cache.
+  retried twice with linear backoff at the transport layer, below the cache;
+  and when the pipeline itself fails (e.g. quota exhausted), `POST /query` returns
+  a `200` with the error in `answer` and `failure_reason` rather than an opaque 500.
 - **Full observability** — every response carries route, grounded flag,
   failure_reason, sources, latency_ms, input/output tokens, and estimated cost.
 - **Live analytics** — `GET /analytics` aggregates `query_logs` in a single SQL
@@ -79,14 +82,12 @@ exposed through FastAPI (`POST /query`, `GET /analytics`, `GET /health`,
 
 ## Tech stack
 
-| Layer            | Technology (pinned in `requirements.txt`)                    |
-| ---------------- | ------------------------------------------------------------ |
 | Orchestration    | `langgraph==0.2.53`, `langchain==0.3.7`                      |
 | LLM              | Google Gemini (`GEMINI_MODEL = "gemini-3.6-flash"`) via `langchain-google-genai==2.0.4` (plus `langchain-community==0.3.7`) |
 | Retrieval        | `faiss-cpu==1.9.0` + `sentence-transformers==3.2.1` (`all-MiniLM-L6-v2`) |
 | Web search       | `tavily-python==0.5.0`                                       |
 | API              | `fastapi==0.115.5` + `uvicorn==0.32.0`, `pydantic==2.9.2`    |
-| UI               | `streamlit==1.40.1`                                          |
+| UI             | Plain HTML/CSS/vanilla JS, served by FastAPI — no framework, no build step |
 | Storage          | PostgreSQL via `psycopg2-binary==2.9.10`                     |
 | Cost accounting  | `tiktoken==0.8.0` (approximate token counts)                 |
 | Config           | `python-dotenv==1.0.1`                                       |
@@ -132,14 +133,17 @@ python -m scripts.test_db
 ### Option A — direct Python
 
 ```bash
-# Start the API (runs startup model check, then serves on :8000)
+# Start the API (runs startup model check, then serves the web UI on :8000)
 uvicorn app.main:app --port 8000
+```
 
-# In another terminal, start the console UI (needs VERITAS_API_KEY set)
-streamlit run streamlit_app.py
+That's it — just one command. Visit `http://localhost:8000/` in your browser.
+The API is served at the same time: `POST /query`, `GET /analytics`, etc.
 
-# Or exercise the pipeline directly (modes: default | injection |
-# websearch-failure | retry | --queries-only for a cheap smoke test)
+To exercise the pipeline directly (modes: default | injection |
+websearch-failure | retry | `--queries-only` for a cheap smoke test):
+
+```bash
 python -m scripts.test_pipeline --queries-only
 ```
 
@@ -168,8 +172,18 @@ Intended behaviour: app on port 8000 plus a Postgres 16 service, with
 
 ### `GET /`
 
+Returns the full web UI (HTML page). The API endpoints are at `/query`,
+`/analytics`, etc.
+
 ```bash
 curl http://localhost:8000/
+# <!DOCTYPE html> ... (the Veritas Agent web app)
+```
+
+### `GET /api/status`
+
+```bash
+curl http://localhost:8000/api/status
 # {"service":"Veritas Agent","status":"running","docs":"/docs"}
 ```
 
@@ -251,6 +265,6 @@ in-memory per-boot `queries_this_session` counter):
 
 ## Roadmap / future work
 
-- Next.js frontend + Vercel/Cloud Run deployment (Streamlit console is internal-tool grade).
+- Next.js frontend + Vercel/Cloud Run deployment (current UI is a self-contained HTML/CSS/JS frontend served by FastAPI).
 - Semantic (embedding-similarity) caching to cut cost/latency on near-duplicate queries.
 - Docker verification on a machine with Docker installed.
