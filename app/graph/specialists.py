@@ -50,7 +50,11 @@ def _answer_from(state, results):
     return state
 
 def rag_node(state: GraphState) -> GraphState:
-    return _answer_from(state, retrieve(state["query"], k=3))
+    k = 6 if state.get("retry_count", 0) >= 1 else 3
+    print(f"[RETRIEVAL] rag_node: k={k} (retry_count={state.get('retry_count', 0)})")
+    return _answer_from(state, retrieve(state["query"], k=k))
 
 def web_search_node(state: GraphState) -> GraphState:
-    return _answer_from(state, web_search(state["query"], max_results=3))
+    max_results = 6 if state.get("retry_count", 0) >= 1 else 3
+    print(f"[RETRIEVAL] web_search_node: max_results={max_results} (retry_count={state.get('retry_count', 0)})")
+    return _answer_from(state, web_search(state["query"], max_results=max_results))

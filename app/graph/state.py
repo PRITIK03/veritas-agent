@@ -10,3 +10,4 @@ class GraphState(TypedDict):
     failure_reason: Optional[str]
     input_tokens: int
     output_tokens: int
+    retry_count: int
