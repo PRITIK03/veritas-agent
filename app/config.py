@@ -7,6 +7,7 @@ class Settings:
     GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
     OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
     TAVILY_API_KEY = os.getenv("TAVILY_API_KEY")
+    VERITAS_API_KEY = os.getenv("VERITAS_API_KEY")
 
     POSTGRES_HOST = os.getenv("POSTGRES_HOST", "localhost")
     POSTGRES_PORT = os.getenv("POSTGRES_PORT", "5432")
