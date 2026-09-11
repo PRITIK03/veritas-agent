@@ -1,0 +1,87 @@
+MERIDIAN ANALYTICS GROUP - IT SECURITY AND PASSWORD POLICY
+Document ID: IT-SEC-101
+Effective date: 2024-06-01
+Last revised: 2025-02-20
+Owner: Information Security
+
+1. SCOPE
+--------
+Applies to all employees, contractors, and interns using company systems,
+regardless of work arrangement.
+
+2. PASSWORD REQUIREMENTS
+------------------------
+- Minimum length: 14 characters.
+- Must include at least three of: uppercase, lowercase, digit, symbol.
+- Company-wide passwords must be rotated every 180 days.
+- Passwords may not be reused within the last 10 password cycles.
+- Passphrases (e.g., four random words) are encouraged and satisfy the length
+  requirement.
+
+EXCEPTION: Service and machine accounts (non-human accounts) are exempt from
+expiration and rotation. They must instead use 32-character randomly generated
+secrets stored in the company secrets manager, and are rotated only on offboarding
+or suspected compromise.
+
+2b. MULTI-FACTOR AUTHENTICATION
+--------------------------------
+MFA is mandatory for all company accounts as of 2024-06-01. SMS-based MFA was
+permitted until 2024-12-31 but is now prohibited; use an authenticator app or a
+hardware security key. Employees still on SMS MFA after 2025-01-01 must
+re-enroll immediately.
+
+3. DEVICE SECURITY
+------------------
+- Full-disk encryption is mandatory on all company devices (BitLocker or
+  FileVault).
+- Screen lock after 5 minutes of inactivity.
+- OS and security patches must be installed within 14 days of release; critical
+  patches within 72 hours.
+- Personal devices may access email only through the managed mobile app with a
+  device passcode; jailbroken or rooted devices are prohibited.
+
+4. NETWORK AND VPN
+------------------
+- The company VPN is required on any untrusted network (public Wi-Fi, hotels,
+  airports).
+- Split tunneling is disabled on the corporate VPN.
+- Guest Wi-Fi in company offices is isolated from the corporate network.
+
+5. SOFTWARE AND THIRD-PARTY SERVICES
+------------------------------------
+- Installing unapproved software on company devices is prohibited.
+- Any third-party service processing company data requires a security
+  assessment before use. Services handling customer PII additionally require a
+  signed Data Processing Agreement.
+- Approval thresholds: no assessment needed under $0 spend but still requires a
+  security review if PII is involved; standard assessment for most tools;
+  enhanced assessment for anything touching production data.
+
+6. DATA CLASSIFICATION AND HANDLING
+------------------------------------
+- Public: may be shared freely.
+- Internal: default classification; do not share outside the company without
+  approval.
+- Confidential: includes customer PII and financial data; encrypted at rest and
+  in transit; access on a need-to-know basis.
+- Restricted: includes secrets and security keys; never stored in documents,
+  email, or chat; only in the secrets manager.
+
+7. INCIDENT REPORTING
+----------------------
+Any suspected security incident must be reported to security@meridian.example
+within 1 hour of discovery. Do NOT attempt to investigate independently. The
+security team will triage and may engage legal and communications.
+
+8. ACCESS REVIEW
+----------------
+Access to Confidential and Restricted data is reviewed quarterly. Access for
+departing employees is revoked within 24 hours of the last working day; for
+involuntary terminations, revocation is immediate.
+
+9. PASSWORD RESET CHANGES (HISTORY)
+------------------------------------
+Before 2024-06-01, the minimum password length was 8 characters and rotation was
+every 90 days. Those older requirements no longer apply to accounts created or
+reset on or after 2024-06-01. Help-desk documentation referencing the old 8/90
+rules is outdated and should be disregarded.

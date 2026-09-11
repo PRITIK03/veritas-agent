@@ -1,0 +1,68 @@
+MERIDIAN ANALYTICS GROUP - REMOTE WORK POLICY
+Document ID: HR-204
+Effective date: 2024-01-01
+Last revised: 2025-03-15
+Owner: People Operations
+
+1. ELIGIBILITY
+---------------
+Full-time employees who have completed their 90-day probation period are
+eligible for remote work. Contractors and interns are not eligible for the
+formal remote-work program, though managers may approve ad-hoc remote days at
+their discretion.
+
+2. WORK ARRANGEMENT TYPES
+-------------------------
+- Hybrid (default): 2-3 days per week on-site, remainder remote. Most roles are
+  hired into this arrangement.
+- Fully Remote: requires VP approval and is reserved for roles where on-site
+  presence is demonstrably unnecessary (e.g., certain engineering and support
+  positions).
+- Temporary Remote: up to 8 weeks per calendar year, for personal or medical
+  reasons, approved by the direct manager.
+
+3. CORE HOURS
+--------------
+Regardless of arrangement, all employees must be available during core hours
+of 10:00-16:00 local time. Outside core hours, schedules are flexible provided
+the employee works 40 hours per week on average.
+
+EXCEPTION: Employees in the Customer Support organization are exempt from core
+hours and instead follow their assigned shift schedule, because support is
+staffed across time zones.
+
+4. WORK LOCATION REQUIREMENTS
+------------------------------
+Remote employees must work from a location within the country of their
+employment contract. Working from another country requires a written
+cross-border authorization from Legal and HR; unauthorized overseas work may
+create tax liability and is grounds for disciplinary action.
+
+Effective 2025-04-01, employees may work from any location within their country
+without notifying their manager. Previously (before 2025-04-01), a notification
+to the manager was required for any remote work outside the employee's home
+city. Employees who moved before this change should not be penalized for having
+followed the older notification rule.
+
+5. EQUIPMENT AND STIPEND
+------------------------
+- Company-issued laptop: provided to all remote and hybrid employees.
+- Home office stipend: one-time $500 for fully remote employees hired after
+  2023-01-01. Hybrid employees are NOT eligible for the stipend.
+- Monthly internet stipend: $50/month for fully remote employees only.
+- Employees are responsible for a reliable internet connection of at least
+  25 Mbps downstream.
+
+6. SECURITY REQUIREMENTS FOR REMOTE WORK
+----------------------------------------
+- Company devices must use full-disk encryption (see IT-SEC-101).
+- Public Wi-Fi use requires the company VPN at all times.
+- Confidential documents must never be printed at home or stored on personal
+  devices.
+
+7. APPROVAL AND REVIEW
+-----------------------
+Remote arrangements are reviewed annually. A manager may revoke a remote
+arrangement with 30 days' written notice if business needs change. Employees
+who wish to appeal a revocation may escalate to their department head, and then
+to People Operations; the appeal must be filed within 14 days of the notice.

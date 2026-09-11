@@ -1,0 +1,68 @@
+MERIDIAN ANALYTICS GROUP - EXPENSE REIMBURSEMENT POLICY
+Document ID: FIN-315
+Effective date: 2023-07-01
+Last revised: 2025-01-10
+Owner: Finance
+
+1. GENERAL PRINCIPLES
+---------------------
+Employees are reimbursed for reasonable, necessary business expenses incurred
+in the course of their work. All expenses must be submitted within 60 days of
+the expense date. Claims older than 60 days require Finance Director approval,
+and claims older than 120 days will be rejected outright with no exceptions.
+
+2. TRAVEL
+---------
+- Airfare: economy class for flights under 6 hours; premium economy is allowed
+  for flights of 6 hours or longer. Business class requires Director approval
+  for flights over 10 hours.
+- Ground transportation: ride-share or taxi is reimbursable; personal mileage is
+  reimbursed at the IRS standard rate ($0.67/mile in 2024, $0.70/mile in 2025).
+- Lodging: up to $250/night in Tier 1 cities (New York, San Francisco, London,
+  Singapore) and up to $150/night elsewhere.
+- Meals while traveling: up to $75/day domestic, $100/day international.
+
+3. MEALS AND ENTERTAINMENT
+--------------------------
+- Client meals: reimbursable with itemized receipt and a list of attendees.
+- Team meals: reimbursable up to $40/person when tied to a business purpose.
+- Alcohol: NOT reimbursable except at approved client entertainment events,
+  capped at $30/person.
+- Solo meals during regular work days at the employee's home city are NOT
+  reimbursable.
+
+4. HOME OFFICE
+--------------
+- The one-time home office stipend ($500) is administered by People Operations,
+  not Finance, and is therefore NOT submitted through the expense system.
+- Ergonomic equipment (chairs, standing desks) may be expensed up to $300 per
+  fiscal year with manager pre-approval. A receipt is mandatory.
+
+5. SOFTWARE AND SUBSCRIPTIONS
+------------------------------
+- Individual software purchases under $100/month may be expensed with manager
+  approval.
+- Subscriptions over $100/month require a procurement review and a completed
+  security assessment (see IT-SEC-101, section 5).
+
+6. APPROVAL THRESHOLDS
+-----------------------
+- Under $500: direct manager approval.
+- $500-$2,500: manager + department head approval.
+- Over $2,500: manager + department head + Finance Director approval.
+
+7. RECEIPTS
+------------
+Itemized receipts are required for any single expense of $25 or more. For
+expenses under $25, a credit-card statement line is sufficient.
+
+8. CORPORATE CREDIT CARD
+-------------------------
+Corporate cards are issued to employees who travel at least 4 times per year.
+Personal use of the corporate card is prohibited. Corporate card transactions
+must be reconciled monthly in the expense system.
+
+NOTE ON POLICY CHANGES: The mileage reimbursement rate is updated annually to
+match the IRS standard rate. The 2024 rate ($0.67) applied to expenses incurred
+in 2024; the 2025 rate ($0.70) applies to expenses incurred on or after
+2025-01-01. Do not retroactively apply a new rate to prior-year expenses.
