@@ -36,14 +36,14 @@ def main():
 
     # Check venv
     if not VENV_PYTHON.exists():
-        print("❌ Virtual environment not found at:", VENV_PYTHON)
+        print("ERROR: Virtual environment not found at:", VENV_PYTHON)
         print("   Run: python -m venv venv && venv\\Scripts\\activate && pip install -r requirements.txt")
         return 1
 
     # Check .env
     env_file = ROOT / ".env"
     if not env_file.exists():
-        print("⚠️  .env not found. Copy .env.example to .env and fill in your keys.")
+        print("WARNING: .env not found. Copy .env.example to .env and fill in your keys.")
         example = ROOT / ".env.example"
         if example.exists():
             import shutil
@@ -53,12 +53,12 @@ def main():
     # Find port
     port = find_free_port(8000)
     if port is None:
-        print("❌ No free ports in range 8000-8009")
+        print("ERROR: No free ports in range 8000-8009")
         return 1
     elif port != 8000:
-        print(f"⚠️  Port 8000 busy, using {port}")
+        print(f"WARNING: Port 8000 busy, using {port}")
 
-    print(f"🚀 Starting server on http://localhost:{port}")
+    print(f"Starting server on http://localhost:{port}")
     print("   Press Ctrl+C to stop")
     print()
 
@@ -81,7 +81,7 @@ def main():
     try:
         subprocess.run(cmd, cwd=ROOT)
     except KeyboardInterrupt:
-        print("\n👋 Server stopped")
+        print("\nServer stopped")
 
 if __name__ == "__main__":
     sys.exit(main())
