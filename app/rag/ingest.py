@@ -36,6 +36,11 @@ def build_index():
     if not all_chunks:
         raise ValueError(f"No .txt files found in {DOCS_DIR}. Add some docs first.")
 
+    zero_chunk_files = [f for f in os.listdir(DOCS_DIR)
+                        if f.endswith(".txt") and len(chunk_text(open(os.path.join(DOCS_DIR, f), encoding="utf-8").read())) == 0]
+    if zero_chunk_files:
+        print(f"⚠️ The following files produced zero chunks (empty or unreadable): {zero_chunk_files}")
+
     embeddings = model.encode(all_chunks, show_progress_bar=True)
     index = faiss.IndexFlatL2(embeddings.shape[1])
     index.add(embeddings)
@@ -44,7 +49,7 @@ def build_index():
     with open(META_PATH, "wb") as f:
         pickle.dump({"chunks": all_chunks, "sources": all_sources}, f)
 
-    print(f"✅ Indexed {len(all_chunks)} chunks from {DOCS_DIR}")
+    print(f"✅ Indexed {len(all_chunks)} chunks from {len([f for f in os.listdir(DOCS_DIR) if f.endswith('.txt')])} files in {DOCS_DIR}")
 
 if __name__ == "__main__":
     build_index()

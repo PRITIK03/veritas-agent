@@ -21,5 +21,6 @@ class Settings:
     GEMINI_MODEL = "gemini-3.6-flash"
     OPENROUTER_FALLBACK_MODEL = "google/gemini-2.5-flash-lite:free"
     EMBEDDING_MODEL = "all-MiniLM-L6-v2"
+    MAX_QUERY_LENGTH = 2000
 
 settings = Settings()

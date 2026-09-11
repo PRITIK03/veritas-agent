@@ -1,6 +1,6 @@
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI, Depends, Header, HTTPException
+from fastapi import FastAPI, Depends, Header, HTTPException, Response
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 from typing import Optional, List, Dict
@@ -51,7 +51,7 @@ def require_api_key(x_api_key: Optional[str] = Header(default=None)):
 
 
 class QueryRequest(BaseModel):
-    query: str = Field(min_length=1, max_length=2000)
+    query: str = Field(min_length=1, max_length=settings.MAX_QUERY_LENGTH)
 
 
 class QueryResponse(BaseModel):
@@ -117,3 +117,13 @@ def health():
 @app.get("/analytics", response_model=AnalyticsResponse)
 def analytics_endpoint(_: None = Depends(require_api_key)):
     return get_analytics_summary()
+
+
+@app.get("/favicon.ico")
+def favicon():
+    return Response(status_code=204)
+
+
+@app.get("/")
+def root():
+    return {"service": "Veritas Agent", "status": "running", "docs": "/docs"}

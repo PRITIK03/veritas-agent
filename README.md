@@ -1,6 +1,6 @@
 # Veritas Agent
 
-Veritas Agent is a grounding-first question-answering service. It routes each
+[GitHub](https://github.com/PRITIK03/veritas-agent) · [Live demo](https://TODO_DEPLOY_URL) It routes each
 query to either an internal document store (RAG over a FAISS vector index) or a
 live web search (Tavily), generates an answer from the retrieved context, then
 runs a separate "grounding" fact-checker that verifies the answer is actually
