@@ -14,8 +14,11 @@ class Settings:
     POSTGRES_USER = os.getenv("POSTGRES_USER", "postgres")
     POSTGRES_PASSWORD = os.getenv("POSTGRES_PASSWORD")
 
-    GEMINI_MODEL = "gemini-2.0-flash"
-    OPENROUTER_FALLBACK_MODEL = "google/gemini-2.0-flash-exp:free"
+    # If this model becomes unavailable, make a real test call (see verify_model_available()
+    # in app/utils/llm.py) — don't trust list_models() alone, it doesn't reflect per-key
+    # access. Check https://ai.google.dev/gemini-api/docs/models for current Flash model names.
+    GEMINI_MODEL = "gemini-3.6-flash"
+    OPENROUTER_FALLBACK_MODEL = "google/gemini-2.5-flash-lite:free"
     EMBEDDING_MODEL = "all-MiniLM-L6-v2"
 
 settings = Settings()

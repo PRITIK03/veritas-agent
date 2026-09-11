@@ -1,0 +1,62 @@
+import requests
+from langchain_google_genai import ChatGoogleGenerativeAI
+from app.config import settings
+
+_gemini = None
+
+def get_gemini():
+    global _gemini
+    if _gemini is None:
+        _gemini = ChatGoogleGenerativeAI(
+            model=settings.GEMINI_MODEL,
+            google_api_key=settings.GEMINI_API_KEY,
+        )
+    return _gemini
+
+def verify_model_available():
+    """Make a real one-token test call to confirm the configured model is actually
+    callable with this API key. list_models() is NOT sufficient — it returns models
+    that exist in Google's catalog but doesn't reflect per-key/per-project permissions.
+    Call this once at startup only; don't call it per-node to avoid burning API quota."""
+    from google import genai as google_genai
+
+    configured = settings.GEMINI_MODEL
+    client = google_genai.Client(api_key=settings.GEMINI_API_KEY)
+    try:
+        client.models.generate_content(model=configured, contents="hi")
+        print(f"✅ Model '{configured}' confirmed callable.")
+    except Exception as e:
+        print(f"❌ Model '{configured}' call failed.\n   API error: {e}")
+        raise RuntimeError(
+            f"Configured model '{configured}' is not usable with this API key.\n"
+            f"Check https://ai.google.dev/gemini-api/docs/models for a current alternative\n"
+            f"and update GEMINI_MODEL in app/config.py."
+        ) from e
+
+def _extract_text(response) -> str:
+    """Safely extract string content from a LangChain LLM response.
+    Newer langchain-google-genai versions may return response.content as a
+    list of content blocks rather than a plain string."""
+    content = response.content
+    if isinstance(content, list):
+        parts = []
+        for block in content:
+            if isinstance(block, dict):
+                parts.append(block.get("text", ""))
+            else:
+                parts.append(str(block))
+        return "".join(parts).strip()
+    return str(content).strip()
+
+def call_openrouter(prompt: str, model: str = None) -> str:
+    """Fallback/secondary LLM path via OpenRouter — used if you want the
+    specialist agent on a different provider than the router."""
+    model = model or settings.OPENROUTER_FALLBACK_MODEL
+    headers = {"Authorization": f"Bearer {settings.OPENROUTER_API_KEY}"}
+    payload = {"model": model, "messages": [{"role": "user", "content": prompt}]}
+    resp = requests.post(
+        "https://openrouter.ai/api/v1/chat/completions",
+        headers=headers, json=payload, timeout=30,
+    )
+    resp.raise_for_status()
+    return resp.json()["choices"][0]["message"]["content"]

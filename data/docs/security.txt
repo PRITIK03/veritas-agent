@@ -1,0 +1,59 @@
+NIMBUS CLOUD STORAGE - SECURITY STANDARDS
+
+Encryption Standards
+--------------------
+All data at rest is protected using AES-256 encryption. Data in transit uses TLS 1.3 with forward secrecy.
+
+Key Management:
+- Customer data encryption keys are stored separately from metadata
+- Master keys are rotated every 90 days automatically
+- Key escrow is available for enterprise customers upon request
+- Zero-knowledge architecture for enterprise customers (customer holds encryption keys)
+
+Data Encryption Process:
+1. Files are encrypted client-side before upload (optional for Free tier)
+2. Server-side encryption with AES-256-GCM
+3. Unique encryption keys per file (envelope encryption)
+4. Keys stored in Hardware Security Modules (HSM)
+
+Compliance Certifications
+-------------------------
+Nimbus Cloud Storage maintains the following compliance certifications:
+
+- SOC 2 Type II (audited annually)
+- ISO/IEC 27001:2013 (Information Security Management)
+- HIPAA eligible (Business Associate Agreement available)
+- GDPR compliant (data residency options in EU and US regions)
+- CCPA compliant
+- PCI DSS compliant for payment processing systems
+
+Data Residency Options:
+- US: Virginia (N. Virginia)
+- EU: Frankfurt, Germany
+- Asia-Pacific: Singapore
+- Enterprise customers can select their preferred region at account creation
+
+Data Retention Policy
+---------------------
+File Retention:
+- Free tier: 30 days for deleted files
+- Basic tier: 60 days for deleted files
+- Professional tier: 180 days for deleted files
+- Enterprise tier: 365 days (configurable up to 7 years)
+
+Version History Retention:
+- Free tier: 30 days of version history
+- Basic tier: 60 days of version history
+- Professional tier: 1 year of version history
+- Enterprise tier: Unlimited version history (storage limits apply)
+
+Automated Deletion:
+- Files in trash after retention period are permanently deleted
+- Deleted accounts are purged after 30 days with no data recovery possible
+- Enterprise customers can request extended retention periods
+
+Security Audits:
+- Quarterly internal security reviews
+- Annual third-party penetration testing
+- Continuous vulnerability scanning
+- Annual SOC 2 Type II and ISO 27001 audits

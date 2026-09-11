@@ -1,0 +1,51 @@
+NIMBUS CLOUD STORAGE - PRICING TIER INFORMATION
+
+Pricing Tiers
+-------------
+Nimbus Cloud Storage offers four distinct pricing tiers designed for different user needs:
+
+1. Free Tier (Personal)
+   - Storage: 5 GB
+   - File Sharing: Up to 50 shared folders
+   - File Retention: 30 days for deleted files
+   - Bandwidth: 50 GB/month
+   - Cost: $0/month
+
+2. Basic Tier ($4.99/month or $49.99/year)
+   - Storage: 100 GB
+   - File Sharing: Unlimited shared folders
+   - File Retention: 60 days for deleted files
+   - Bandwidth: 200 GB/month
+   - Additional: Priority support
+
+3. Professional Tier ($12.99/month or $129.99/year)
+   - Storage: 2 TB
+   - File Sharing: Unlimited shared folders with advanced permissions
+   - File Retention: 180 days for deleted files
+   - Bandwidth: 2 TB/month
+   - Additional: Team collaboration tools, API access
+
+4. Enterprise Tier (Custom pricing)
+   - Storage: Unlimited (subject to reasonable use policy)
+   - File Sharing: Unlimited with custom team structures
+   - File Retention: 365 days for deleted files (configurable)
+   - Bandwidth: Unlimited
+   - Additional: SSO integration, dedicated support, SLA guarantee
+
+Billing Policy
+--------------
+- Monthly billing cycles reset on the same date each month
+- Annual plans require payment upfront and provide 2 months free
+- Enterprise contracts are negotiated annually with 30-day notice for modifications
+- Pro-rated refunds available for early cancellation within billing period
+- Invoices are sent via email 3 days before renewal
+
+Storage Limits
+--------------
+- Maximum single file size: 5 GB across all tiers
+- Free tier: 5 GB total storage
+- Basic tier: 100 GB total storage
+- Professional tier: 2 TB total storage
+- Enterprise tier: Unlimited with quarterly usage review
+
+Note: Storage usage includes all versions of files. Each file version counts toward your total storage limit.

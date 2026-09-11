@@ -1,0 +1,99 @@
+NIMBUS CLOUD STORAGE - REST API GUIDE
+
+Authentication
+--------------
+All API requests require authentication using API keys. We support two authentication methods:
+
+1. API Key (Recommended for server-to-server)
+   - Include in headers: Authorization: Bearer <api_key>
+   - API keys can be generated in the developer dashboard
+   - Keys should be stored securely and rotated regularly
+
+2. OAuth 2.0 (Recommended for user-facing applications)
+   - Use our OAuth endpoints to obtain access tokens
+   - Access tokens expire after 1 hour
+   - Refresh tokens expire after 30 days
+
+Rate Limits
+-----------
+API rate limits depend on your subscription tier:
+
+- Free tier: 100 requests/minute
+- Basic tier: 1,000 requests/minute
+- Professional tier: 10,000 requests/minute
+- Enterprise tier: Custom limits (up to 1,000,000 requests/minute)
+
+Rate limit headers:
+- X-RateLimit-Limit: Maximum requests in the current window
+- X-RateLimit-Remaining: Requests remaining in the current window
+- X-RateLimit-Reset: Unix timestamp when the rate limit resets
+- X-RateLimit-ResetAfter: Seconds until the rate limit resets
+
+Available Endpoints
+-------------------
+
+1. File Operations
+   - POST /api/v1/files/upload: Upload new files (multipart/form-data)
+   - GET /api/v1/files/{file_id}: Download file by ID
+   - DELETE /api/v1/files/{file_id}: Delete a file
+   - PUT /api/v1/files/{file_id}: Update file metadata
+
+2. Folder Operations
+   - POST /api/v1/folders: Create a new folder
+   - GET /api/v1/folders: List folders
+   - DELETE /api/v1/folders/{folder_id}: Delete a folder
+   - PUT /api/v1/folders/{folder_id}: Update folder metadata
+
+3. Sharing Operations
+   - POST /api/v1/shares: Create share link
+   - GET /api/v1/shares: List active shares
+   - DELETE /api/v1/shares/{share_id}: Revoke share link
+   - PUT /api/v1/shares/{share_id}: Update share permissions
+
+4. User Operations
+   - GET /api/v1/users/profile: Get user profile
+   - PUT /api/v1/users/profile: Update user profile
+   - GET /api/v1/users/quota: Get storage quota information
+   - POST /api/v1/users/keys: Generate new API key
+
+5. Version Operations
+   - GET /api/v1/files/{file_id}/versions: List file versions
+   - GET /api/v1/files/{file_id}/versions/{version_id}: Download specific version
+   - POST /api/v1/files/{file_id}/versions/{version_id}/restore: Restore previous version
+
+Response Format
+---------------
+All API responses return JSON with the following structure:
+
+{
+  "success": true,
+  "data": { ... },
+  "meta": {
+    "request_id": "unique-request-id",
+    "timestamp": "2024-01-15T10:30:00Z"
+  }
+}
+
+Error responses include an error object:
+
+{
+  "success": false,
+  "error": {
+    "code": "RATE_LIMIT_EXCEEDED",
+    "message": "Rate limit exceeded. Try again in 45 seconds.",
+    "details": {}
+  }
+}
+
+Webhooks
+--------
+Configure webhooks in the developer dashboard to receive real-time notifications for:
+
+- file.uploaded: New file added to account
+- file.deleted: File permanently deleted
+- file.moved: File moved to different folder
+- share.created: New share link generated
+- share.revoked: Share link removed
+- user.deleted: User account deleted
+
+Webhook payloads are signed with HMAC-SHA256 for security verification.

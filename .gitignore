@@ -16,6 +16,9 @@ __pycache__/
 # FAISS index
 data/faiss_index/
 
+# LLM response cache — dev only, contains cached responses tied to API key usage
+data/llm_cache.json
+
 # IDE
 .vscode/
 .idea/
