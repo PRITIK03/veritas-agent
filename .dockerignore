@@ -1,0 +1,12 @@
+venv/
+.venv/
+.git/
+.gitignore
+__pycache__/
+*.pyc
+.env
+data/faiss_index/
+data/llm_cache.json
+.streamlit/
+.vscode/
+.idea/
