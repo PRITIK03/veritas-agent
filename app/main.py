@@ -6,7 +6,7 @@ from typing import Optional, List, Dict
 from app.graph.pipeline import pipeline
 from app.utils.timer import timer
 from app.utils.cost import estimate_cost
-from app.db import log_query
+from app.db import log_query, get_analytics_summary
 
 app = FastAPI(title="Veritas Agent")
 
@@ -32,6 +32,20 @@ class QueryResponse(BaseModel):
     input_tokens: int
     output_tokens: int
     estimated_cost_usd: float
+
+
+class RouteCounts(BaseModel):
+    rag: int
+    web_search: int
+
+
+class AnalyticsResponse(BaseModel):
+    total_queries: int
+    grounding_success_rate_pct: float
+    avg_latency_ms: float
+    avg_estimated_cost_usd: float
+    total_estimated_cost_usd: float
+    route_counts: RouteCounts
 
 
 @app.post("/query", response_model=QueryResponse)
@@ -66,3 +80,8 @@ def query_endpoint(req: QueryRequest):
 @app.get("/health")
 def health():
     return {"status": "ok"}
+
+
+@app.get("/analytics", response_model=AnalyticsResponse)
+def analytics_endpoint():
+    return get_analytics_summary()
