@@ -1,13 +1,31 @@
+# Core LLM / agent stack
 langchain==0.3.7
-langgraph==0.2.53
-langchain-google-genai==2.0.4
+langchain-core==1.6.3
 langchain-community==0.3.7
+langchain-google-genai==4.4.0
+langgraph==0.2.53
+google-genai==2.22.0
+
+# Embeddings + vector store
 sentence-transformers==3.2.1
 faiss-cpu==1.9.0
+
+# Web search
 tavily-python==0.5.0
+
+# API layer
 fastapi==0.115.5
 uvicorn==0.32.0
+python-multipart==0.0.32
+
+# UI
+streamlit==1.40.1
+
+# Database
 psycopg2-binary==2.9.10
+
+# Utilities
 python-dotenv==1.0.1
-pydantic==2.9.2
+pydantic==2.13.5
 tiktoken==0.8.0
+requests==2.34.2

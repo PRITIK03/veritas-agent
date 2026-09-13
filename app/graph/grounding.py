@@ -1,4 +1,3 @@
-import time
 from app.graph.state import GraphState
 from app.utils.cache import cached_llm_invoke
 from app.utils.cost import count_tokens
@@ -28,9 +27,7 @@ def grounding_node(state: GraphState) -> GraphState:
 
     context_text = "\n\n".join(state.get("context", []))
     prompt = GROUNDING_PROMPT.format(context=context_text, answer=state["answer"])
-    _t0 = time.perf_counter()
     result = cached_llm_invoke(prompt)
-    print(f"[TIMING] grounding llm.invoke(): {(time.perf_counter() - _t0)*1000:.0f} ms")
 
     grounded = "NOT_GROUNDED" not in result.upper()
     reason = ""

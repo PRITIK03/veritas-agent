@@ -1,4 +1,3 @@
-import time
 from app.graph.state import GraphState
 from app.rag.retriever import retrieve
 from app.tools.web_search import web_search
@@ -38,9 +37,7 @@ def _answer_from(state, results):
     context_text = "\n\n".join(r["text"] for r in results)
     sources = [r["source"] for r in results]
     prompt = ANSWER_PROMPT.format(context=context_text, query=state["query"])
-    _t0 = time.perf_counter()
     answer = cached_llm_invoke(prompt)
-    print(f"[TIMING] specialists llm.invoke(): {(time.perf_counter() - _t0)*1000:.0f} ms")
 
     state["context"] = [r["text"] for r in results]
     state["sources"] = sources
