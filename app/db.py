@@ -34,7 +34,67 @@ def log_query(query, route, answer, sources, grounded,
     except Exception as e:
         print(f"⚠️ Failed to log query to Postgres: {e}")
 
-def get_analytics_summary():
+def get_recent_logs(limit: int = 20):
+    """Fetch most recent query log rows for the verification ledger."""
+    conn = get_connection()
+    cur = conn.cursor()
+    cur.execute(
+        """
+        SELECT id, created_at, query, route, grounded, failure_reason,
+               latency_ms, input_tokens, output_tokens, estimated_cost_usd,
+               answer, sources
+        FROM query_logs
+        ORDER BY created_at DESC
+        LIMIT %s
+        """,
+        (limit,),
+    )
+    cols = [d[0] for d in cur.description]
+    rows = [dict(zip(cols, row)) for row in cur.fetchall()]
+    cur.close()
+    conn.close()
+    return rows
+
+
+def get_grounding_trend(limit: int = 30):
+    """Return the last N rows as (created_at, grounded) for the sparkline."""
+    conn = get_connection()
+    cur = conn.cursor()
+    cur.execute(
+        """
+        SELECT created_at, grounded
+        FROM query_logs
+        ORDER BY created_at DESC
+        LIMIT %s
+        """,
+        (limit,),
+    )
+    rows = cur.fetchall()
+    cur.close()
+    conn.close()
+    # Return oldest-first so the sparkline reads left→right
+    return list(reversed(rows))
+
+
+def get_cost_per_verified_answer():
+    """Cost per *grounded* answer — a sharper metric than cost-per-query."""
+    conn = get_connection()
+    cur = conn.cursor()
+    cur.execute(
+        """
+        SELECT
+            COALESCE(
+                SUM(estimated_cost_usd) FILTER (WHERE grounded = TRUE)
+                / NULLIF(COUNT(*) FILTER (WHERE grounded = TRUE), 0),
+                0
+            ) AS cost_per_verified
+        FROM query_logs
+        """
+    )
+    row = cur.fetchone()
+    cur.close()
+    conn.close()
+    return float(row[0]) if row else 0.0
     """Single-query aggregate summary over query_logs.
 
     Returns total counts, grounding success rate, latency/cost averages,

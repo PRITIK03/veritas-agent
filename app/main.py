@@ -79,6 +79,7 @@ class QueryResponse(BaseModel):
     grounded: bool
     failure_reason: Optional[str]
     sources: List[Dict]
+    context: List[str]
     latency_ms: int
     input_tokens: int
     output_tokens: int
@@ -144,6 +145,7 @@ def query_endpoint(req: QueryRequest, _: None = Depends(require_api_key)):
     return QueryResponse(
         answer=result["answer"], route=result["route"], grounded=result["grounded"],
         failure_reason=result["failure_reason"], sources=result["sources"],
+        context=result.get("context", []),
         latency_ms=latency_ms, input_tokens=result["input_tokens"],
         output_tokens=result["output_tokens"], estimated_cost_usd=cost,
     )
