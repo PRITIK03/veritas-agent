@@ -19,8 +19,13 @@
       </div>
       <nav class="tabs" role="tablist">
         <button class="tab active" data-tab="ask" role="tab" aria-selected="true">Ask</button>
+        <button class="tab" data-tab="history" role="tab" aria-selected="false">History</button>
         <button class="tab" data-tab="analytics" role="tab" aria-selected="false">Analytics</button>
       </nav>
+      <button id="theme-toggle" class="theme-toggle" aria-label="Toggle dark mode" title="Toggle dark mode">
+        <span class="theme-icon light">☀</span>
+        <span class="theme-icon dark">☾</span>
+      </button>
     </header>
 
     <main class="main">
@@ -33,10 +38,30 @@
           </div>
           <div id="loading" class="loading hidden" aria-live="polite">Searching...</div>
 
+          <div id="flow-panel" class="flow-panel hidden">
+            <div class="flow-title">Execution trace</div>
+            <div class="flow-diagram" id="flow-diagram">
+              <div class="flow-node" data-node="router" data-label="Router"></div>
+              <div class="flow-edge"></div>
+              <div class="flow-node" data-node="specialist" data-label="Specialist"></div>
+              <div class="flow-edge"></div>
+              <div class="flow-node" data-node="grounding" data-label="Grounding"></div>
+              <div class="flow-edge retry-edge hidden" id="retry-edge"></div>
+              <div class="flow-node retry-node hidden" data-node="retry" data-label="Retry"></div>
+              <div class="flow-edge"></div>
+              <div class="flow-node" data-node="answer" data-label="Answer"></div>
+            </div>
+            <div class="flow-meta">
+              <span id="flow-route">Route: —</span>
+              <span id="flow-retry">Retry: —</span>
+            </div>
+          </div>
+
           <div id="answer-panel" class="answer-panel hidden">
             <div class="answer-header">
               <span id="verdict-badge" class="badge"></span>
               <span id="route-label" class="route-tag"></span>
+              <button class="copy-btn" id="copy-answer" title="Copy answer">Copy</button>
             </div>
             <pre id="answer-text" class="answer-text"></pre>
             <div id="sources-section" class="sources hidden">
@@ -50,6 +75,18 @@
               <div class="stat-item"><span class="stat-key">Cost</span><span id="stat-cost" class="stat-val"></span></div>
             </div>
             <div id="error-banner" class="error hidden" role="alert"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- HISTORY TAB -->
+      <section class="tab-panel" data-tab="history" role="tabpanel">
+        <div class="history-container">
+          <div class="analytics-title">History</div>
+          <div id="history-loading" class="loading">Loading...</div>
+          <div id="history-empty" class="empty hidden">No queries yet. Ask something first.</div>
+          <div id="history-body" class="hidden">
+            <div class="history-table" id="history-table"></div>
           </div>
         </div>
       </section>
@@ -109,12 +146,21 @@
                 </div>
               </div>
             </div>
+            <div class="section-block chart-block">
+              <div class="section-head">
+                <span class="section-title">Cost &amp; grounding trend</span>
+              </div>
+              <div class="chart-wrap">
+                <canvas id="trend-chart" height="200"></canvas>
+              </div>
+            </div>
           </div>
         </div>
       </section>
     </main>
   </div>
 
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="/static/app.js"></script>
 </body>
 </html>
