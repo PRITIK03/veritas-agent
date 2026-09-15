@@ -1,5 +1,3 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
-
 :root {
   --accent: #0F766E;
   --accent-hover: #0D5E56;
@@ -634,3 +632,12 @@ html[data-theme="dark"] .history-detail .fail-reason { color: #ff8a8a; }
   from { opacity: 0; transform: translateY(10px); }
   to { opacity: 1; transform: translateY(0); }
 }
+
+@media (max-width: 768px) {
+  .main { padding: 20px 14px; }
+  .query-row { flex-direction: column; }
+  .btn-submit { width: 100%; }
+  .stats { grid-template-columns: repeat(2, 1fr); }
+  .stats-grid { grid-template-columns: repeat(2, 1fr); }
+}
+

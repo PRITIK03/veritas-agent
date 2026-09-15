@@ -71,6 +71,7 @@ async function submitQuery() {
     if (!resp.ok) throw new Error(data.detail || "Request failed");
     renderAnswer(data);
     animateFlow(data);
+    document.getElementById("answer-panel").scrollIntoView({ behavior: "smooth", block: "start" });
   } catch (err) {
     document.getElementById("error-banner").textContent = err.message || "An error occurred.";
     document.getElementById("error-banner").classList.remove("hidden");
@@ -194,10 +195,11 @@ async function copyToClipboard(text, btn) {
   try {
     await navigator.clipboard.writeText(text);
     const old = btn.textContent;
-    btn.textContent = "Copied";
-    setTimeout(() => btn.textContent = old, 1200);
+    btn.textContent = "Copied!";
+    setTimeout(() => btn.textContent = old, 1500);
   } catch (e) {
-    btn.textContent = "Failed";
+    btn.textContent = "Copy failed";
+    setTimeout(() => btn.textContent = "Copy", 1500);
   }
 }
 
