@@ -20,7 +20,7 @@ from app.config import settings
 from app.graph.pipeline import pipeline
 from app.utils.cost import estimate_cost
 from app.utils.llm import verify_model_available
-from app.db import log_query, get_analytics_summary
+from app.db import log_query, get_analytics_summary, get_recent_queries, get_cost_and_grounding_trend
 
 logger = logging.getLogger(__name__)
 
@@ -84,6 +84,7 @@ class QueryResponse(BaseModel):
     input_tokens: int
     output_tokens: int
     estimated_cost_usd: float
+    retry_count: int
 
 
 class RouteCounts(BaseModel):
@@ -130,6 +131,7 @@ def query_endpoint(req: QueryRequest, _: None = Depends(require_api_key)):
             failure_reason="LLM quota exhausted — the pipeline could not complete. Retry later.",
             sources=[], latency_ms=latency_ms,
             input_tokens=0, output_tokens=0, estimated_cost_usd=0.0,
+            retry_count=0,
         )
 
     cost = estimate_cost(result["input_tokens"], result["output_tokens"])
@@ -148,6 +150,7 @@ def query_endpoint(req: QueryRequest, _: None = Depends(require_api_key)):
         context=result.get("context", []),
         latency_ms=latency_ms, input_tokens=result["input_tokens"],
         output_tokens=result["output_tokens"], estimated_cost_usd=cost,
+        retry_count=result.get("retry_count", 0),
     )
 
 
@@ -161,6 +164,16 @@ def analytics_endpoint(_: None = Depends(require_api_key)):
     summary = get_analytics_summary()
     summary["queries_this_session"] = _query_count
     return summary
+
+
+@app.get("/analytics/recent")
+def analytics_recent_endpoint(_: None = Depends(require_api_key)):
+    return get_recent_queries()
+
+
+@app.get("/analytics/trend")
+def analytics_trend_endpoint(_: None = Depends(require_api_key)):
+    return get_cost_and_grounding_trend()
 
 
 @app.get("/favicon.ico")
