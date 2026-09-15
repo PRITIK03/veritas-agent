@@ -10,14 +10,12 @@ __pycache__/
 # Env
 .env
 
-# Streamlit
-.streamlit/
-
 # FAISS index
 data/faiss_index/
 
 # LLM response cache — dev only, contains cached responses tied to API key usage
 data/llm_cache.json
+app/data/
 
 # IDE
 .vscode/

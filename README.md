@@ -1,6 +1,6 @@
 # Veritas Agent
 
-A grounded RAG + web-search pipeline that verifies every answer against its sources before returning it. Built with LangGraph, Gemini, FAISS, Tavily, FastAPI, and Streamlit.
+A grounded RAG + web-search pipeline that verifies every answer against its sources before returning it. Built with LangGraph, Gemini, FAISS, Tavily, FastAPI.
 
 ---
 
@@ -52,7 +52,10 @@ veritas-agent/
 │   └── test_pipeline.py   # End-to-end pipeline smoke test
 ├── sql/
 │   └── schema.sql         # Postgres table definition
-├── streamlit_app.py       # Local UI — talks to FastAPI only
+├── static/
+│   ├── index.html         # Single-page UI served by FastAPI
+│   ├── style.css          # Styling — palette, layout, dark theme
+│   └── app.js             # Frontend logic — tabs, charts, flow diagram
 ├── requirements.txt
 └── .env.example
 ```
@@ -106,19 +109,13 @@ The index is saved to `data/faiss_index/` (gitignored).
 
 ## Run
 
-### API server
+### Server + UI
 
 ```powershell
 uvicorn app.main:app --reload --port 8000
 ```
 
-### UI (separate terminal)
-
-```powershell
-streamlit run streamlit_app.py
-```
-
-Opens at `http://localhost:8501`.
+Opens at `http://localhost:8000`.
 
 ### Smoke test (no UI needed)
 
@@ -135,6 +132,8 @@ python -m scripts.test_pipeline
 | `/query` | POST | Run a query through the pipeline |
 | `/health` | GET | Liveness check |
 | `/analytics` | GET | Aggregate stats from Postgres |
+| `/analytics/recent` | GET | Most recent queries (newest first) |
+| `/analytics/trend` | GET | Chronological cost + grounding trend |
 | `/docs` | GET | Auto-generated Swagger UI |
 
 **POST /query**
@@ -171,6 +170,8 @@ Currently configured to `gemini-3.6-flash` (stable free-tier as of Sep 2026). If
 
 ## UI tabs
 
-- **Query** — submit a query, see the grounding verdict stamp, answer, source citations, side-by-side answer vs evidence, and execution trace
-- **Dashboard** — routing split chart, grounding rate sparkline, cost-per-verified-answer
-- **Ledger** — full history with grounding pass-rate as the hero stat, expandable rows
+- **Ask** — submit a query, see the animated execution-flow diagram (Router → Specialist → Grounding, with retry loop), grounding verdict badge, answer with copy-to-clipboard, sources, and a latency/token/cost stats strip
+- **History** — recent queries in a table with route, verdict, cost, latency, and expandable failure reasons
+- **Analytics** — aggregate metrics with count-up animation, grounding-rate bar, route split, and a cost/grounding trend chart
+
+Dark mode is available via the toggle in the top bar; the choice is persisted in localStorage.
