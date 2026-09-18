@@ -20,6 +20,7 @@ from app.config import settings
 from app.graph.pipeline import pipeline
 from app.utils.cost import estimate_cost
 from app.utils.llm import verify_model_available
+from app.rag.retriever import warmup as warmup_rag_index
 from app.db import log_query, get_analytics_summary, get_recent_queries, get_cost_and_grounding_trend
 
 logger = logging.getLogger(__name__)
@@ -42,7 +43,18 @@ async def lifespan(app: FastAPI):
                   "but requests may fail until quota resets.")
         else:
             raise
+
+    # Warm up the embedding model + FAISS index now so the first user query
+    # doesn't pay the multi-second cold-start cost (previously misdiagnosed
+    # as a 'hang'). Failure here must not prevent the server from starting.
+    try:
+        warmup_rag_index()
+    except Exception as e:
+        logger.warning(f"RAG warmup failed (queries will lazy-load instead): {e}")
     yield
+
+# NOTE: allow_origins=["*"] is convenient for local dev but permissive for
+# production. Restrict to your real frontend origin(s) before deploying.
 
 
 app = FastAPI(title="Veritas Agent", lifespan=lifespan)
@@ -128,8 +140,8 @@ def query_endpoint(req: QueryRequest, _: None = Depends(require_api_key)):
         logger.error(error_msg)
         return QueryResponse(
             answer=error_msg, route="error", grounded=False,
-            failure_reason="LLM quota exhausted — the pipeline could not complete. Retry later.",
-            sources=[], latency_ms=latency_ms,
+            failure_reason=error_msg,
+            sources=[], context=[], latency_ms=latency_ms,
             input_tokens=0, output_tokens=0, estimated_cost_usd=0.0,
             retry_count=0,
         )

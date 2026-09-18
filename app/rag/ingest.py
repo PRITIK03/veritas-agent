@@ -1,12 +1,16 @@
 import os
 import pickle
+
 import faiss
 from sentence_transformers import SentenceTransformer
+
 from app.config import settings
 
-DOCS_DIR = "data/docs"
-INDEX_PATH = "data/faiss_index/index.faiss"
-META_PATH = "data/faiss_index/meta.pkl"
+ROOT_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+DOCS_DIR = os.path.join(ROOT_DIR, "data", "docs")
+INDEX_DIR = os.path.join(ROOT_DIR, "data", "faiss_index")
+INDEX_PATH = os.path.join(INDEX_DIR, "index.faiss")
+META_PATH = os.path.join(INDEX_DIR, "meta.pkl")
 CHUNK_SIZE = 500
 CHUNK_OVERLAP = 50
 
@@ -20,26 +24,28 @@ def chunk_text(text, chunk_size=CHUNK_SIZE, overlap=CHUNK_OVERLAP):
     return chunks
 
 def build_index():
-    os.makedirs("data/faiss_index", exist_ok=True)
+    os.makedirs(INDEX_DIR, exist_ok=True)
     model = SentenceTransformer(settings.EMBEDDING_MODEL)
 
-    all_chunks, all_sources = [], []
-    for filename in os.listdir(DOCS_DIR):
+    # Read every file once — no handle leaks, deterministic order.
+    file_chunks = {}
+    for filename in sorted(os.listdir(DOCS_DIR)):
         if not filename.endswith(".txt"):
             continue
         with open(os.path.join(DOCS_DIR, filename), "r", encoding="utf-8") as f:
-            text = f.read()
-        for i, chunk in enumerate(chunk_text(text)):
+            file_chunks[filename] = chunk_text(f.read())
+
+    all_chunks, all_sources = [], []
+    for filename, chunks in file_chunks.items():
+        if not chunks:
+            print(f"⚠️ {filename} produced zero chunks (empty or unreadable) — skipped.")
+            continue
+        for i, chunk in enumerate(chunks):
             all_chunks.append(chunk)
             all_sources.append({"file": filename, "chunk_id": i})
 
     if not all_chunks:
-        raise ValueError(f"No .txt files found in {DOCS_DIR}. Add some docs first.")
-
-    zero_chunk_files = [f for f in os.listdir(DOCS_DIR)
-                        if f.endswith(".txt") and len(chunk_text(open(os.path.join(DOCS_DIR, f), encoding="utf-8").read())) == 0]
-    if zero_chunk_files:
-        print(f"⚠️ The following files produced zero chunks (empty or unreadable): {zero_chunk_files}")
+        raise ValueError(f"No usable .txt content found in {DOCS_DIR}. Add some docs first.")
 
     embeddings = model.encode(all_chunks, show_progress_bar=True)
     index = faiss.IndexFlatL2(embeddings.shape[1])
@@ -49,7 +55,7 @@ def build_index():
     with open(META_PATH, "wb") as f:
         pickle.dump({"chunks": all_chunks, "sources": all_sources}, f)
 
-    print(f"✅ Indexed {len(all_chunks)} chunks from {len([f for f in os.listdir(DOCS_DIR) if f.endswith('.txt')])} files in {DOCS_DIR}")
+    print(f"✅ Indexed {len(all_chunks)} chunks from {len(file_chunks)} files in {DOCS_DIR}")
 
 if __name__ == "__main__":
     build_index()

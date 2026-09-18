@@ -106,8 +106,13 @@ def run_web_search_failure_test():
     def boom(*args, **kwargs):
         raise RuntimeError("simulated Tavily outage")
 
-    original = web_search_module._client.search
-    web_search_module._client.search = boom
+    # Force a client instance whose .search raises, so web_search()'s
+    # try/except path runs without needing a real Tavily key or network.
+    class _FailingClient:
+        search = staticmethod(boom)
+
+    original = web_search_module._client
+    web_search_module._client = _FailingClient()
 
     try:
         state = {
@@ -133,7 +138,7 @@ def run_web_search_failure_test():
         print("=" * 60 + "\n")
         return result
     finally:
-        web_search_module._client.search = original
+        web_search_module._client = original
 
 
 def run_retry_test():

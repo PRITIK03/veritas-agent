@@ -15,6 +15,8 @@ data/faiss_index/
 
 # LLM response cache — dev only, contains cached responses tied to API key usage
 data/llm_cache.json
+data/llm_cache.json.bak
+data/llm_cache.tmp
 app/data/
 
 # IDE
