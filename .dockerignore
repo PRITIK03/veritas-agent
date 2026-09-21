@@ -7,5 +7,6 @@ __pycache__/
 .env
 data/faiss_index/
 data/llm_cache.json
+data/llm_cache.json.bak
 .vscode/
 .idea/
