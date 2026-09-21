@@ -34,11 +34,34 @@
       <!-- ASK TAB -->
       <section class="tab-panel active" data-tab="ask" role="tabpanel">
         <div class="ask-container">
+          <div class="how-box">
+            <button id="how-toggle" class="how-toggle" aria-expanded="false">
+              How this works <span class="how-chevron">⌄</span>
+            </button>
+            <div id="how-body" class="how-body hidden">
+              <p>Your question is <strong>routed</strong> between the internal knowledge base and live web search.</p>
+              <p>An answer is drafted from the retrieved sources, then <strong>self-verified</strong> against them before you see it.</p>
+              <p>If verification fails, the agent retries once with a broader search — otherwise it tells you honestly what it couldn't verify.</p>
+            </div>
+          </div>
           <div class="query-row">
             <textarea id="query-input" class="query-area" placeholder="Ask a question about the documents..." rows="2" aria-label="Query"></textarea>
             <button id="submit-btn" class="btn-submit">Submit</button>
           </div>
+          <div class="kb-indicator">Indexed: Nimbus Cloud (pricing/security/API) + HR-IT Policies (remote work/expenses/security)</div>
+          <div class="example-chips">
+            <button class="example-chip" data-query="What are the storage limits on paid tiers?">What are the storage limits on paid tiers?</button>
+            <button class="example-chip" data-query="What's the remote work core hours policy?">What's the remote work core hours policy?</button>
+            <button class="example-chip" data-query="How do I authenticate with the Nimbus API?">How do I authenticate with the Nimbus API?</button>
+            <button class="example-chip" data-query="What is the expense reimbursement deadline?">What is the expense reimbursement deadline?</button>
+            <button class="example-chip" data-query="What does the IT security policy say about passwords?">What does the IT security policy say about passwords?</button>
+          </div>
           <div id="loading" class="loading hidden" aria-live="polite">Searching...</div>
+          <div id="skeleton" class="skeleton hidden" aria-live="polite" aria-label="Loading answer">
+            <div class="skeleton-block skeleton-badge"></div>
+            <div class="skeleton-block skeleton-answer"></div>
+            <div class="skeleton-block skeleton-stats"></div>
+          </div>
 
           <div id="flow-panel" class="flow-panel hidden">
             <div class="flow-title">Execution trace</div>
@@ -76,6 +99,7 @@
               <div class="stat-item"><span class="stat-key">Output</span><span id="stat-output-tokens" class="stat-val"></span></div>
               <div class="stat-item"><span class="stat-key">Cost</span><span id="stat-cost" class="stat-val"></span></div>
             </div>
+            <button class="copy-btn" id="copy-run" title="Copy full run as Markdown">Copy full run as Markdown</button>
             <div id="error-banner" class="error hidden" role="alert"></div>
           </div>
         </div>
@@ -164,5 +188,6 @@
 
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="/static/app.js"></script>
+  <div id="toast-container" aria-live="polite"></div>
 </body>
 </html>

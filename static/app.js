@@ -1,5 +1,8 @@
 const API_BASE = "";
 const API_KEY = "local-dev-key-change-me";
+const FRONTEND_TIMEOUT_MS = 25000;
+let currentController = null;
+let lastRun = null;
 
 const tabs = document.querySelectorAll(".tab");
 const panels = document.querySelectorAll(".tab-panel");
@@ -47,15 +50,39 @@ document.getElementById("query-input").addEventListener("keydown", e => {
   if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); submitQuery(); }
 });
 
+/* ── Toast notifications ── */
+function showToast(message, type = "info") {
+  let container = document.getElementById("toast-container");
+  if (!container) {
+    container = document.createElement("div");
+    container.id = "toast-container";
+    document.body.appendChild(container);
+  }
+  const toast = document.createElement("div");
+  toast.className = `toast toast-${type}`;
+  toast.setAttribute("role", "alert");
+  toast.textContent = message;
+  container.appendChild(toast);
+  setTimeout(() => toast.classList.add("show"));
+  setTimeout(() => {
+    toast.classList.remove("show");
+    setTimeout(() => toast.remove(), 300);
+  }, 4000);
+}
+
 function setLoading(on) {
   document.getElementById("submit-btn").disabled = on;
-  document.getElementById("loading").classList.toggle("hidden", !on);
+  document.getElementById("skeleton").classList.toggle("hidden", !on);
 }
 
 async function submitQuery() {
   const input = document.getElementById("query-input");
   const query = input.value.trim();
   if (!query) return;
+  // Abort any previous in-flight request so rapid double-submits can't pile up.
+  if (currentController) currentController.abort();
+  currentController = new AbortController();
+  const timeoutId = setTimeout(() => currentController.abort(), FRONTEND_TIMEOUT_MS);
   setLoading(true);
   hideAnswer();
   try {
@@ -66,25 +93,74 @@ async function submitQuery() {
         "X-API-Key": API_KEY,
       },
       body: JSON.stringify({ query }),
+      signal: currentController.signal,
     });
     const data = await resp.json();
     if (!resp.ok) throw new Error(data.detail || "Request failed");
+    lastRun = { query, ...data };
     renderAnswer(data);
     animateFlow(data);
     document.getElementById("answer-panel").scrollIntoView({ behavior: "smooth", block: "start" });
   } catch (err) {
-    document.getElementById("error-banner").textContent = err.message || "An error occurred.";
-    document.getElementById("error-banner").classList.remove("hidden");
-    document.getElementById("answer-panel").classList.remove("hidden");
+    if (err.name === "AbortError") {
+      showToast("Request timed out — please try again", "error");
+      document.getElementById("answer-panel").classList.remove("hidden");
+    } else {
+      showToast(err.message || "An error occurred.", "error");
+      document.getElementById("answer-panel").classList.remove("hidden");
+    }
   } finally {
+    clearTimeout(timeoutId);
+    currentController = null;
     setLoading(false);
   }
 }
 
 function hideAnswer() {
-  ["answer-panel", "error-banner", "flow-panel"].forEach(id => document.getElementById(id).classList.add("hidden"));
+  ["answer-panel", "error-banner", "flow-panel", "skeleton"].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.classList.add("hidden");
+  });
   resetFlow();
 }
+
+/* ── Example query chips ── */
+document.querySelectorAll(".example-chip").forEach(chip => {
+  chip.addEventListener("click", () => {
+    document.getElementById("query-input").value = chip.dataset.query;
+    submitQuery();
+  });
+});
+
+/* ── How this works toggle ── */
+document.getElementById("how-toggle").addEventListener("click", () => {
+  const body = document.getElementById("how-body");
+  const toggle = document.getElementById("how-toggle");
+  const open = body.classList.toggle("hidden");
+  toggle.querySelector(".how-chevron").textContent = open ? "⌄" : "⌃";
+  toggle.setAttribute("aria-expanded", String(!open));
+});
+
+/* ── Copy full run as Markdown ── */
+document.getElementById("copy-run").addEventListener("click", () => {
+  if (!lastRun) { showToast("No run to copy yet — ask a question first.", "warning"); return; }
+  const d = lastRun;
+  const sources = (d.sources || []).map(s => `- ${s.file || "unknown"} (chunk ${s.chunk_id ?? "?"})`).join("\n") || "_(none)_";
+  const md = [
+    `## Veritas run — ${d.query}`,
+    ``,
+    `**Answer:** ${d.answer || "—"}`,
+    ``,
+    `- Route: \`${d.route || "—"}\``,
+    `- Grounded: ${d.grounded ? "yes" : "no"}${d.failure_reason ? ` (${d.failure_reason})` : ""}`,
+    `- Retries: ${d.retry_count ?? 0}`,
+    `- Latency: ${d.latency_ms ?? "—"} ms · Input: ${d.input_tokens ?? "—"} · Output: ${d.output_tokens ?? "—"} · Cost: $${d.estimated_cost_usd ?? "0.00"}`,
+    ``,
+    `**Sources**`,
+    sources,
+  ].join("\n");
+  copyToClipboard(md, document.getElementById("copy-run"));
+});
 
 /* ── Execution flow diagram ── */
 const FLOW_STEPS = ["router", "specialist", "grounding", "answer"];
@@ -228,6 +304,7 @@ async function loadHistory() {
     loading.classList.add("hidden");
     empty.classList.remove("hidden");
     empty.textContent = err.message || "Failed to load history.";
+    showToast(err.message || "Failed to load history.", "warning");
   }
 }
 
@@ -305,6 +382,7 @@ async function loadAnalytics() {
     loading.classList.add("hidden");
     empty.classList.remove("hidden");
     empty.textContent = err.message || "Failed to load analytics.";
+    showToast(err.message || "Failed to load analytics.", "warning");
   }
 }
 
