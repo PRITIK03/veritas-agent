@@ -1,8 +1,12 @@
 import time
+from concurrent.futures import ThreadPoolExecutor, TimeoutError as FuturesTimeoutError
 
 import requests
 from langchain_google_genai import ChatGoogleGenerativeAI
 from app.config import settings
+
+LLM_TIMEOUT_SECONDS = 20
+LLM_TIMEOUT_MESSAGE = f"LLM call exceeded {LLM_TIMEOUT_SECONDS}s timeout"
 
 _gemini = None
 
@@ -23,7 +27,20 @@ def _is_rate_limit_error(exc: Exception) -> bool:
     return any(marker in text for marker in _RATE_LIMIT_MARKERS)
 
 
-def invoke_with_retry(prompt: str, max_retries: int = 2, base_delay: float = 2.0) -> str:
+def _invoke_with_timeout(prompt: str, timeout: float = LLM_TIMEOUT_SECONDS) -> str:
+    """Single Gemini call with a hard timeout so no request can hang forever."""
+    llm = get_gemini()
+    with ThreadPoolExecutor(max_workers=1) as pool:
+        future = pool.submit(llm.invoke, prompt)
+        try:
+            response = future.result(timeout=timeout)
+        except FuturesTimeoutError:
+            raise TimeoutError(LLM_TIMEOUT_MESSAGE) from None
+    return _extract_text(response)
+
+
+def invoke_with_retry(prompt: str, max_retries: int = 2, base_delay: float = 2.0,
+                       timeout: float = LLM_TIMEOUT_SECONDS) -> str:
     """Transport-level retry for transient Gemini rate-limit (429) failures.
 
     This is deliberately separate from any answer-quality retry loop: it only
@@ -35,7 +52,9 @@ def invoke_with_retry(prompt: str, max_retries: int = 2, base_delay: float = 2.0
     attempt = 0
     while True:
         try:
-            return _extract_text(get_gemini().invoke(prompt))
+            return _invoke_with_timeout(prompt, timeout=timeout)
+        except TimeoutError:
+            raise
         except Exception as e:
             if not _is_rate_limit_error(e) or attempt >= max_retries:
                 raise

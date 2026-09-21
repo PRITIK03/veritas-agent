@@ -37,7 +37,19 @@ def _answer_from(state, results):
     context_text = "\n\n".join(r["text"] for r in results)
     sources = [r["source"] for r in results]
     prompt = ANSWER_PROMPT.format(context=context_text, query=state["query"])
-    answer = cached_llm_invoke(prompt)
+    try:
+        answer = cached_llm_invoke(prompt)
+    except TimeoutError:
+        print("⏱️ Specialist LLM call timed out — returning honest fallback answer.")
+        answer = "This is taking longer than expected — please try rephrasing your question."
+        state["context"] = []
+        state["sources"] = []
+        state["answer"] = answer
+        state["grounded"] = True
+        state["failure_reason"] = None
+        state["input_tokens"] = state.get("input_tokens", 0) + count_tokens(prompt)
+        state["output_tokens"] = state.get("output_tokens", 0) + count_tokens(answer)
+        return state
 
     state["context"] = [r["text"] for r in results]
     state["sources"] = sources

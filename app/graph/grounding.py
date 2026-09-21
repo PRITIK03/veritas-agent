@@ -27,7 +27,14 @@ def grounding_node(state: GraphState) -> GraphState:
 
     context_text = "\n\n".join(state.get("context", []))
     prompt = GROUNDING_PROMPT.format(context=context_text, answer=state["answer"])
-    result = cached_llm_invoke(prompt)
+    try:
+        result = cached_llm_invoke(prompt)
+    except TimeoutError:
+        print("⏱️ Grounding LLM call timed out — marking as not grounded.")
+        state["grounded"] = False
+        state["failure_reason"] = "Verification timed out"
+        state["input_tokens"] = state.get("input_tokens", 0) + count_tokens(prompt)
+        return state
 
     grounded = "NOT_GROUNDED" not in result.upper()
     reason = ""

@@ -51,14 +51,17 @@ def _key(prompt: str) -> str:
     return hashlib.sha256(prompt.encode("utf-8")).hexdigest()
 
 
-def cached_llm_invoke(prompt: str) -> str:
+def cached_llm_invoke(prompt: str, timeout: float = 20.0) -> str:
     """Call the LLM with prompt, returning cached text if available.
 
     Returns the plain text response string (already extracted).
     Prints a clear status line on every call so cache hits are never silent.
+    The underlying Gemini call carries a hard timeout (default 20s) via
+    invoke_with_retry, so a cache miss can raise TimeoutError instead of
+    hanging indefinitely.
     """
     if not CACHE_ENABLED:
-        return invoke_with_retry(prompt)
+        return invoke_with_retry(prompt, timeout=timeout)
 
     k = _key(prompt)
     with _lock:
@@ -70,7 +73,7 @@ def cached_llm_invoke(prompt: str) -> str:
     # Miss — call the API outside the lock so concurrent different prompts
     # don't serialize on the network call.
     print(f"🌐 Cache miss — calling API (key={k[:12]}...)")
-    text = invoke_with_retry(prompt)
+    text = invoke_with_retry(prompt, timeout=timeout)
 
     with _lock:
         cache = _load()  # re-read: another thread may have written meanwhile

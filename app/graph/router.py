@@ -15,7 +15,13 @@ Query: {query}
 
 def route_node(state: GraphState) -> GraphState:
     prompt = ROUTER_PROMPT.format(query=state["query"])
-    decision = cached_llm_invoke(prompt).lower()
+    try:
+        decision = cached_llm_invoke(prompt).lower()
+    except TimeoutError:
+        print("⏱️ Router LLM call timed out — defaulting to safe fallback route 'rag'.")
+        state["route"] = "rag"
+        state["input_tokens"] = state.get("input_tokens", 0) + count_tokens(prompt)
+        return state
 
     state["route"] = "web_search" if "web_search" in decision else "rag"
     state["input_tokens"] = state.get("input_tokens", 0) + count_tokens(prompt)
