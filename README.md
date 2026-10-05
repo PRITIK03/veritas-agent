@@ -4,7 +4,7 @@ A grounded RAG + web-search pipeline that verifies every answer against its sour
 
 ---
 
-## What it does
+## What it does-
 
 Every query runs through a four-node LangGraph pipeline:
 
