@@ -1,4 +1,4 @@
-# Veritas Agent
+# Veritas Agent/
 
 A grounded RAG + web-search pipeline that verifies every answer against its sources before returning it. Built with LangGraph, Gemini, FAISS, Tavily, FastAPI.
 
